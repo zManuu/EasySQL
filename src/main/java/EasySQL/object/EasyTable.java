@@ -4,27 +4,34 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.sql.*;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class EasyTable {
 
     private final String tableName;
+    private final List<String> rows;
     private Connection connection;
 
     public EasyTable(Connection connection, String tableName) {
         this.tableName = tableName;
         this.connection = connection;
+        this.rows = new ArrayList<>();
     }
     public EasyTable(MysqlDataSource dataSource, String tableName) {
         this.tableName = tableName;
         try { this.connection = dataSource.getConnection(); }
         catch (SQLException e) { e.printStackTrace(); }
+        this.rows = new ArrayList<>();
     }
     public EasyTable(String databaseName, String databaseUser, String databasePassword, String tableName) {
         this.tableName = tableName;
         try {
             this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + databaseName, databaseUser, databasePassword);
         } catch (SQLException e) { e.printStackTrace(); }
+        this.rows = new ArrayList<>();
     }
 
     public String getTableName() {
@@ -32,6 +39,12 @@ public class EasyTable {
     }
     public Connection getConnection() {
         return connection;
+    }
+    public List<String> getRows() {
+        return rows;
+    }
+    public void registerRow(String rowName) {
+        rows.add(rowName);
     }
 
     /**
@@ -66,20 +79,22 @@ public class EasyTable {
 
     /**
      * Inserts data into the table
-     * @param values has to contain your key row
+     * @param valuesArray has to contain your primary key
      * @return whether the operation was successful
      */
-    public boolean insert(Map<String, Object> values) {
+    public boolean insert(Object... valuesArray) {
         try {
 
+            List<Object> values = Arrays.asList(valuesArray);
+
             StringBuilder stringBuilder = new StringBuilder("INSERT INTO " + tableName + "(");
-            for (String s : values.keySet()) {
+            for (String s : rows) {
                 stringBuilder.append(s);
                 stringBuilder.append(",");
             }
             stringBuilder.deleteCharAt(stringBuilder.length()-1);
             stringBuilder.append(") VALUES(");
-            for (Object s : values.values()) {
+            for (Object s : values) {
                 if (s instanceof String) stringBuilder.append('\'');
                 stringBuilder.append(s);
                 if (s instanceof String) stringBuilder.append('\'');
@@ -99,20 +114,22 @@ public class EasyTable {
 
     /**
      * Inserts data into the table
-     * @param keyRow the name of your key row
+     * @param keyRow the name of your primary-key-row
      * @return whether the operation was successful
      */
-    public boolean insertAutoIncrement(String keyRow, Map<String, Object> values) {
+    public boolean insertAutoIncrement(String keyRow, Object... valuesArray) {
         try {
 
+            List<Object> values = Arrays.asList(valuesArray);
+
             StringBuilder stringBuilder = new StringBuilder("INSERT INTO " + tableName + "(" + keyRow + ",");
-            for (String s : values.keySet()) {
+            for (String s : rows) {
                 stringBuilder.append(s);
                 stringBuilder.append(",");
             }
             stringBuilder.deleteCharAt(stringBuilder.length()-1);
             stringBuilder.append(") VALUES(" + "NULL,");
-            for (Object s : values.values()) {
+            for (Object s : values) {
                 if (s instanceof String) stringBuilder.append('\'');
                 stringBuilder.append(s);
                 if (s instanceof String) stringBuilder.append('\'');
@@ -137,8 +154,8 @@ public class EasyTable {
      * Uses EasyTable#insertAutoIncrement() with "ID" as the key row
      * @return whether the operation was successful
      */
-    public boolean insertAutoIncrement(Map<String, Object> values) {
-        return insertAutoIncrement("ID", values);
+    public boolean insertAutoIncrementID(Object... valuesArray) {
+        return insertAutoIncrement("ID", valuesArray);
     }
 
     /**

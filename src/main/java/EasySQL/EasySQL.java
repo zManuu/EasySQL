@@ -10,11 +10,10 @@ public class EasySQL {
 
     public static void main(String[] args) {
         EasyTable table = new EasyTable("EasySqlDb", "root", "", "EasyTable");
-        Map<String, Object> values = new LinkedHashMap<>();
-        values.put("Name", "Manuel");
-        values.put("Money", 50000);
-        values.put("AdminLevel", 10);
-        table.insertAutoIncrement(values);
+        table.registerRow("Name");
+        table.registerRow("Money");
+        table.registerRow("AdminLevel");
+        table.insertAutoIncrementID("Test", 500, 5000);
 
         String name = table.getString("Name", "ID", 50);
     }
