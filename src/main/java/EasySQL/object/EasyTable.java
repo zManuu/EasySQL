@@ -5,9 +5,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import java.sql.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class EasyTable {
 
@@ -79,13 +77,11 @@ public class EasyTable {
 
     /**
      * Inserts data into the table
-     * @param valuesArray has to contain your primary key
+     * @param values for each row you registered with EasyTable#registerRow() you have to pass one object; has to contain your primary key
      * @return whether the operation was successful
      */
-    public boolean insert(Object... valuesArray) {
+    public boolean insert(Object... values) {
         try {
-
-            List<Object> values = Arrays.asList(valuesArray);
 
             StringBuilder stringBuilder = new StringBuilder("INSERT INTO " + tableName + "(");
             for (String s : rows) {
@@ -114,13 +110,12 @@ public class EasyTable {
 
     /**
      * Inserts data into the table
+     * @param values for each row you registered with EasyTable#registerRow() you have to pass one object
      * @param keyRow the name of your primary-key-row
      * @return whether the operation was successful
      */
-    public boolean insertAutoIncrement(String keyRow, Object... valuesArray) {
+    public boolean insertAutoIncrement(String keyRow, Object... values) {
         try {
-
-            List<Object> values = Arrays.asList(valuesArray);
 
             StringBuilder stringBuilder = new StringBuilder("INSERT INTO " + tableName + "(" + keyRow + ",");
             for (String s : rows) {
@@ -152,10 +147,11 @@ public class EasyTable {
     /**
      * Inserts data into the table
      * Uses EasyTable#insertAutoIncrement() with "ID" as the key row
+     * @param values for each row you registered with EasyTable#registerRow() you have to pass one object
      * @return whether the operation was successful
      */
-    public boolean insertAutoIncrementID(Object... valuesArray) {
-        return insertAutoIncrement("ID", valuesArray);
+    public boolean insertAutoIncrementID(Object... values) {
+        return insertAutoIncrement("ID", values);
     }
 
     /**
