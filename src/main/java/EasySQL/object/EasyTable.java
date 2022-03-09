@@ -7,6 +7,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * To use this class, simply call the constructor and register all the rows your table has via registerRow()
+ * You can then get, update and insert data (more will follow)
+ */
 public class EasyTable {
 
     private final String tableName;
@@ -76,6 +80,18 @@ public class EasyTable {
     }
 
     /**
+     * This method can be used to get data structures that aren't included in the build-in methods of the EasyTable class.
+     * @param whereStatement SQL syntax like 'ID=50' or 'Name=TestName'
+     * @return the ResultSet that came back from the query or null
+     */
+    public ResultSet query(String whereStatement) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM "+tableName+" WHERE "+whereStatement)) {
+            return statement.executeQuery();
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+
+    /**
      * Inserts data into the table
      * @param values for each row you registered with EasyTable#registerRow() you have to pass one object; has to contain your primary key
      * @return whether the operation was successful
@@ -132,8 +148,6 @@ public class EasyTable {
             }
             stringBuilder.deleteCharAt(stringBuilder.length()-1);
             stringBuilder.append(")");
-
-            System.out.println(stringBuilder.toString());
 
             PreparedStatement statement = connection.prepareStatement(stringBuilder.toString());
             statement.execute();
